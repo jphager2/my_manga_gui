@@ -5,6 +5,8 @@
   "main": "src/electron-starter.js",
   "homepage": "./",
   "dependencies": {
+    "knex": "^0.14.2",
+    "pg": "^7.4.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17"
@@ -15,6 +17,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "dev": "nf start",
+    "server": "node ./src/index.server.js",
     "electron": "electron ."
   },
   "devDependencies": {
