@@ -1,21 +1,7 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'
+import { openExternal } from './utils';
 import './MangaList.css';
-
-let shell;
-
-if (window.require) {
-  const electron = window.require('electron');
-  const fs = electron.remote.require('fs');
-  shell = electron.shell;
-}
-
-function openExternal(e) {
-  const url = e.target.getAttribute('href');
-
-  if (!shell) { return; }
-  e.preventDefault();
-  shell.openExternal(url);
-}
 
 function Manga(props) {
   const url = props.href;
@@ -26,9 +12,11 @@ function Manga(props) {
 
   return (
     <div className="Manga">
-      <div className="Manga-cover">
-        <img src={image} />
-      </div>
+      <Link to={`/manga/${props.id}`}>
+        <div className="Manga-cover">
+          <img src={image} />
+        </div>
+      </Link>
       <div className="Manga-info">
         <h2 className="Manga-title">{props.name}</h2>
         <p className="Manga-description">
@@ -49,6 +37,7 @@ function MangaList(props) {
   const items = manga.map((item) => (
     <Manga
       key={item.id.toString()}
+      id={item.id}
       name={item.name}
       href={item.uri}
       chapterCount={item.total_count}
