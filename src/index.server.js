@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const db = require('./db');
 
-const port = process.env.PORT ? (parseInt(process.env.PORT) + 100) : 3000;
+const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 
 const REACT_ORIGIN = `http://localhost:${port}`;
 const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga'
@@ -130,3 +130,5 @@ app.post('/manga/:id/update', (req, res) => {
 });
 
 app.listen(8999);
+
+console.log('Server listening on 8999');
