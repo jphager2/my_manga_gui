@@ -1,6 +1,4 @@
 .MangaDetail {
-  display: flex;
-  margin-bottom: 16px;
 }
 
 .MangaDetail-cover {
@@ -13,18 +11,4 @@
 
 .MangaDetail-info {
   padding-left: 16px;
-}
-
-.MangaDetail-link {
-  display: inline-block;
-  padding: 0.75rem 1.75rem;
-  border: 1px solid white;
-  border-radius: 4px;
-  font-size: 1.25rem;
-  text-decoration: none;
-}
-
-.MangaDetail-link:hover {
-  background-color: white;
-  color: #333;
 }

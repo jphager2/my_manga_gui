@@ -1,0 +1,21 @@
+.ChapterList {
+  width: 100%;
+}
+
+.Chapter {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid white;
+}
+
+.Chapter-name {
+  flex: 1 0 0;
+  margin-left: 16px;
+}
+
+.Chapter .button {
+  margin-left: 16px;
+}

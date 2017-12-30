@@ -11,6 +11,10 @@
   max-width: 100%;
 }
 
+.Manga-title a {
+  text-decoration: none;
+}
+
 .Manga-info {
   padding-left: 16px;
 }

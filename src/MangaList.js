@@ -3,6 +3,26 @@ import { Link } from 'react-router-dom'
 import { openExternal } from './utils';
 import './MangaList.css';
 
+function update(e) {
+  const button = e.target;
+
+  e.preventDefault();
+
+  if (button.classList.contains('loading')) { return; }
+
+  button.classList.add('loading');
+
+  fetch('http://localhost:8999/manga/update', {method: 'POST'})
+    .then((res) => {
+      button.classList.remove('loading');
+      console.log(res.status);
+      if (res.status != 202 && res.status != 409) {
+        throw new Error('Failed to update manga');
+      }
+    })
+    .catch((e) => console.error(e))
+}
+
 function Manga(props) {
   const url = props.href;
   const slug = url.split('/').reverse()[0];
@@ -18,7 +38,9 @@ function Manga(props) {
         </div>
       </Link>
       <div className="Manga-info">
-        <h2 className="Manga-title">{props.name}</h2>
+        <h2 className="Manga-title">
+          <Link to={`/manga/${props.id}`}>{props.name}</Link>
+        </h2>
         <p className="Manga-description">
           {props.readCount} chapters read of {props.chapterCount}
         </p>
@@ -46,7 +68,14 @@ function MangaList(props) {
   ));
 
   return (
-    <div className="MangaList">{items}</div>
+    <div className="MangaList">
+      <div className="row">
+        <div className="MangaList-update button" onClick={update}>Update</div>
+      </div>
+      <div className="row">
+        <div className="MangaList-list">{items}</div>
+      </div>
+    </div>
   );
 }
 
