@@ -3,6 +3,30 @@ import { Link } from 'react-router-dom'
 import { openExternal } from './utils';
 import './MangaList.css';
 
+let updatePollInterval = null;
+
+function updatePoll(button) {
+  if (!updatePollInterval) { return; }
+
+  fetch(`http://localhost:8999/manga/update`)
+    .then((res) => {
+      if (res.status === 409) { return; }
+
+      if (res.status !== 200) {
+        throw new Error('Failed to update manga');
+      }
+
+      button.classList.remove('loading');
+      window.location.reload();
+    })
+    .catch((e) => {
+      console.error(e);
+      button.classList.remove('loading');
+      window.clearInterval(updatePollInterval);
+      updatePollInterval = null
+    });
+}
+
 function update(e) {
   const button = e.target;
 
@@ -14,13 +38,15 @@ function update(e) {
 
   fetch('http://localhost:8999/manga/update', {method: 'POST'})
     .then((res) => {
-      button.classList.remove('loading');
-      console.log(res.status);
       if (res.status != 202 && res.status != 409) {
         throw new Error('Failed to update manga');
       }
+      updatePollInterval = window.setInterval(() => updatePoll(button), 1000)
     })
-    .catch((e) => console.error(e))
+    .catch((e) => {
+      console.error(e);
+      button.classList.remove('loading');
+    });
 }
 
 function Manga(props) {

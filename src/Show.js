@@ -49,6 +49,7 @@ class Show extends Component {
   render() {
     return (
       <MangaDetail
+        id={this.id}
         manga={this.state.manga}
         chapters={this.state.chapters}
       />

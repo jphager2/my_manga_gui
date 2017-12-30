@@ -5,6 +5,59 @@ import ChapterList from './ChapterList';
 import './MangaDetail.css';
 
 class MangaDetail extends Component {
+  constructor(props) {
+    super(props);
+
+    this.id = props.id;
+    this.update = this.update.bind(this);
+    this.updatePoll = this.updatePoll.bind(this);
+    this.updatePollInterval = null;
+  }
+
+  updatePoll(button) {
+    if (!this.updatePollInterval) { return; }
+
+    fetch(`http://localhost:8999/manga/${this.id}/update`)
+      .then((res) => {
+        if (res.status === 409) { return; }
+
+        if (res.status !== 200) {
+          throw new Error('Failed to update manga');
+        }
+
+        button.classList.remove('loading');
+        window.location.reload();
+      })
+      .catch((e) => {
+        console.error(e);
+        button.classList.remove('loading');
+        window.clearInterval(this.updatePollInterval);
+        this.updatePollInterval = null;
+      });
+  }
+
+  update(e) {
+    const button = e.target;
+
+    e.preventDefault();
+
+    if (button.classList.contains('loading')) { return; }
+
+    button.classList.add('loading');
+
+    fetch(`http://localhost:8999/manga/${this.id}/update`, {method: 'POST'})
+      .then((res) => {
+        if (res.status !== 202 && res.status !== 409) {
+          throw new Error('Failed to update manga');
+        }
+        this.updatePollInterval = window.setInterval(() => this.updatePoll(button), 1000);
+      })
+      .catch((e) => {
+        console.error(e);
+        button.classList.remove('loading');
+      });
+  }
+
   render() {
     const manga = this.props.manga;
     const slug = manga.uri.split('/').reverse()[0];
@@ -15,7 +68,7 @@ class MangaDetail extends Component {
     return (
       <div className="MangaDetail">
         <div className="row">
-          <Link className="button small" to={'/'}>&lt;&lt;- Back</Link>
+          <Link className="button small" to={'/'}>Back</Link>
         </div>
         <div className="row">
           <Link to={`/manga/${manga.id}`}>
@@ -28,11 +81,14 @@ class MangaDetail extends Component {
             <p className="MangaDetail-description">
               {manga.read_count} chapters read of {manga.total_count}
             </p>
-            <p>
+            <div>
               <a className="MangaDetail-link button" href={manga.url} onClick={openExternal}>
                 Read online
               </a>
-            </p>
+              <div className="MangaDetail-update button" onClick={this.update} >
+                Update
+              </div>
+            </div>
           </div>
         </div>
         <div className="row">
