@@ -37,4 +37,19 @@ app.get('/manga', (req, res) => {
     });
 });
 
+app.get('/manga/:id', (req, res) => {
+  db('manga')
+    .select('*')
+    .where({id: req.params.id})
+    .limit(1)
+    .then((manga) => {
+      res.setHeader('Content-type', 'application/json');
+      res.send(JSON.stringify(manga[0]));
+    })
+    .catch((e) => {
+      console.error(e);
+      res.status(500).end();
+    });
+});
+
 app.listen(8999);

@@ -4,7 +4,6 @@ import { openExternal } from './utils';
 import './MangaDetail.css';
 
 function MangaDetail(props) {
-  console.log(props.manga.id)
   const {manga} = props;
   const slug = manga.uri.split('/').reverse()[0];
   const image = manga.uri
@@ -21,7 +20,7 @@ function MangaDetail(props) {
       <div className="MangaDetail-info">
         <h2 className="MangaDetail-title">{manga.name}</h2>
         <p className="MangaDetail-description">
-          {manga.readCount} chapters read of {manga.chapterCount}
+          {manga.read_count} chapters read of {manga.total_count}
         </p>
         <p>
           <a className="MangaDetail-link" href={manga.url} onClick={openExternal}>
