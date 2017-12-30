@@ -4,7 +4,13 @@
   "private": true,
   "main": "src/electron-starter.js",
   "homepage": "./",
+  "author": {
+    "name": "John Hager",
+    "email": "jphager2@gmail.com",
+    "url": "john-hager.info"
+  },
   "dependencies": {
+    "express": "^4.16.2",
     "knex": "^0.14.2",
     "pg": "^7.4.0",
     "react": "^16.2.0",
@@ -20,7 +26,27 @@
     "eject": "react-scripts eject",
     "dev": "nf start",
     "server": "node ./src/index.server.js",
-    "electron": "electron ."
+    "electron": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "info.john-hager.my_manga_gui",
+    "asar": false,
+    "files": [
+      "src/electron-starter.js",
+      "src/index.server.js",
+      "src/db.js",
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "linux": {
+      "category": "Utility",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   },
   "devDependencies": {
     "electron": "^1.7.10",
