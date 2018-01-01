@@ -32,7 +32,6 @@
   },
   "build": {
     "appId": "info.john-hager.my_manga_gui",
-    "asar": false,
     "files": [
       "src/electron-starter.js",
       "src/index.server.js",
