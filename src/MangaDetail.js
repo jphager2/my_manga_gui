@@ -39,8 +39,6 @@ class MangaDetail extends Component {
   update(e) {
     const button = e.target;
 
-    e.preventDefault();
-
     if (button.classList.contains('loading')) { return; }
 
     button.classList.add('loading');
