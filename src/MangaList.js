@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom'
 import { openExternal } from './utils';
 import './MangaList.css';
@@ -36,7 +36,7 @@ function update(e) {
 
   fetch('http://localhost:8999/manga/update', {method: 'POST'})
     .then((res) => {
-      if (res.status != 202 && res.status != 409) {
+      if (res.status !== 202 && res.status !== 409) {
         throw new Error('Failed to update manga');
       }
       updatePollInterval = window.setInterval(() => updatePoll(button), 1000)
@@ -58,7 +58,7 @@ function Manga(props) {
     <div className="Manga">
       <Link to={`/manga/${props.id}`}>
         <div className="Manga-cover">
-          <img src={image} />
+          <img src={image} alt={props.name} />
         </div>
       </Link>
       <div className="Manga-info">

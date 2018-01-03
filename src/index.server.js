@@ -1,17 +1,14 @@
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const shellescape = require('shell-escape');
 const express = require('express');
 const app = express();
 const db = require('./db');
+const fs = require('fs');
 
 const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 
 const REACT_ORIGIN = `http://localhost:${port}`;
 const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga'
-
-function cmd(...subCommand) {
-  return shellescape([MY_MANGA_PATH, ...subCommand]);
-}
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
@@ -51,13 +48,21 @@ app.get('/manga/update', (req, res) => {
 });
 
 app.post('/manga/update', (req, res) => {
+  let status;
+
   if (updatingManga) {
     status = 409
   } else {
     status = 202
     updatingManga = true;
-    exec(cmd('update'), (err, stdout, stderr) => {
-      if (err) { console.error(err); }
+    const cmd = spawn(MY_MANGA_PATH, ['update']);
+    const out = '';
+    const err = '';
+
+    cmd.stdout.on('data', data => out.concat(data));
+    cmd.stderr.on('data', data => err.concat(data));
+    cmd.on('close', code => {
+      if (code !== 0) { console.error(err); }
       updatingManga = false;
     });
   }
@@ -102,21 +107,29 @@ app.get('/manga/:id/update', (req, res) => {
 });
 
 app.post('/manga/:id/update', (req, res) => {
+  let status;
   const id = req.params.id;
 
   if (updatingSingleManga[id]) {
     status = 409
   } else {
-    status = 202
+    status = 202;
     updatingSingleManga[id] = true;
     
     db('manga')
       .select('name')
       .where({id})
       .limit(1)
-      .then((manga) => {
-        exec(cmd('update', manga.name), (err, stdout, stderr) => {
-          if (err) { console.error(err); }
+      .then(([manga]) => {
+        const cmd = spawn(MY_MANGA_PATH, ['update', manga.name]);
+        const out = '';
+        const err = '';
+
+        cmd.stdout.on('data', data => out.concat(data));
+        cmd.stderr.on('data', data => err.concat(data));
+        cmd.on('close', code => {
+          fs.writeFile('/home/john/log', `code: ${code}, err: ${err}, out: ${out}, manga: ${JSON.stringify(manga)}, cmd: ${JSON.stringify(cmd)}`, () => {});
+          if (code !== 0) { console.error(err); }
           delete updatingSingleManga[id];
         });
       })

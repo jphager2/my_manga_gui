@@ -71,7 +71,7 @@ class MangaDetail extends Component {
         <div className="row">
           <Link to={`/manga/${manga.id}`}>
             <div className="Manga-cover">
-              <img src={image} />
+              <img src={image} alt={manga.name} />
             </div>
           </Link>
           <div className="MangaDetail-info">

@@ -4,8 +4,8 @@ import {
   Route
 } from 'react-router-dom'
 import logo from './logo.svg';
-import Index from './Index';
-import Show from './Show';
+import IndexPage from './IndexPage';
+import ShowPage from './ShowPage';
 import './App.css';
 
 
@@ -20,8 +20,8 @@ class App extends Component {
         <div className="App-route">
           <Router>
             <div>
-              <Route exact path="/" component={Index} />
-              <Route path="/manga/:id" component={Show} />
+              <Route exact path="/" component={IndexPage} />
+              <Route path="/manga/:id" component={ShowPage} />
             </div>
           </Router>
         </div>

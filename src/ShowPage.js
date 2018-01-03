@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import MangaDetail from './MangaDetail';
 
-class Show extends Component {
+class ShowPage extends Component {
   constructor(props) {
     super(props);
 
@@ -23,7 +23,7 @@ class Show extends Component {
   fetchManga() {
     fetch(`http://localhost:8999/manga/${this.id}`)
       .then((res) => {
-        if (!res.status == 200) {
+        if (!res.status === 200) {
           throw new Error(`Failed to fetch manga with id "${this.id}"`);
         }
 
@@ -36,7 +36,7 @@ class Show extends Component {
   fetchChapters() {
     fetch(`http://localhost:8999/manga/${this.id}/chapters`)
       .then((res) => {
-        if (!res.status == 200) {
+        if (!res.status === 200) {
           throw new Error(`Failed to fetch chapters for manga with id "${this.id}"`);
         }
 
@@ -57,4 +57,4 @@ class Show extends Component {
   }
 }
 
-export default Show;
+export default ShowPage;

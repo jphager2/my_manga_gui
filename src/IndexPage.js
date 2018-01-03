@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import MangaList from './MangaList';
 
-class Index extends Component {
+class IndexPage extends Component {
   constructor(props) {
     super(props);
 
@@ -13,7 +13,7 @@ class Index extends Component {
   componentDidMount() {
     fetch(`http://localhost:8999/manga`)
       .then((res) => {
-        if (!res.status == 200) {
+        if (!res.status === 200) {
           throw new Error('Failed to fetch manga');
         }
 
@@ -30,4 +30,4 @@ class Index extends Component {
   }
 }
 
-export default Index;
+export default IndexPage;
