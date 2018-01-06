@@ -142,6 +142,36 @@ app.post('/manga/:id/update', (req, res) => {
   res.status(status).end();
 });
 
+app.post('/chapters/:id/read', (req, res) => {
+  const id = req.params.id;
+
+  db('chapters')
+    .where({id})
+    .update({read: true})
+    .then(() => {
+      res.status(200).end();
+    })
+    .catch((e) => {
+      console.error(e);
+      res.status(409).end();
+    });
+});
+
+app.delete('/chapters/:id/read', (req, res) => {
+  const id = req.params.id;
+
+  db('chapters')
+    .where({id})
+    .update({read: false})
+    .then((results) => {
+      res.status(200).end();
+    })
+    .catch((e) => {
+      console.error(e)
+      res.status(409).end();
+    });
+});
+
 app.listen(8999);
 
 console.log('Server listening on 8999');
