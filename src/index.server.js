@@ -128,7 +128,6 @@ app.post('/manga/:id/update', (req, res) => {
         cmd.stdout.on('data', data => out.concat(data));
         cmd.stderr.on('data', data => err.concat(data));
         cmd.on('close', code => {
-          fs.writeFile('/home/john/log', `code: ${code}, err: ${err}, out: ${out}, manga: ${JSON.stringify(manga)}, cmd: ${JSON.stringify(cmd)}`, () => {});
           if (code !== 0) { console.error(err); }
           delete updatingSingleManga[id];
         });
@@ -136,6 +135,46 @@ app.post('/manga/:id/update', (req, res) => {
       .catch((e) => {
         console.error(e);
         delete updatingSingleManga[id];
+      });
+  }
+
+  res.status(status).end();
+});
+
+const downloadingSingleChapter = {};
+
+app.get('/manga/:id/download', (req, res) => {
+  res.status(downloadingSingleChapter[req.params.id] ? 409 : 200).end(JSON.stringify(downloadingSingleChapter));
+});
+
+app.post('/chapters/:id/download', (req, res) => {
+  const id = req.params.id;
+
+  if (downloadingSingleChapter[id]) {
+    status = 409
+  } else {
+    status = 202;
+    downloadingSingleChapter[id] = true;
+
+    db('chapters')
+      .innerJoin('manga', 'chapters.manga_id', 'manga.id')
+      .select('manga.name AS manga', 'chapters.number')
+      .where('chapters.id', id)
+      .then(([{manga, number}]) => {
+        const cmd = spawn(MY_MANGA_PATH, ['download', manga, `--list=${number}`]);
+        const out = '';
+        const err = '';
+
+        cmd.stdout.on('data', data => out.concat(data));
+        cmd.stderr.on('data', data => err.concat(data));
+        cmd.on('close', code => {
+          if (code !== 0) { console.error(err); }
+          delete downloadingSingleChapter[id];
+        });
+      })
+      .catch((e) => {
+        console.error(e);
+        delete downloadingSingleChapter[id];
       });
   }
 

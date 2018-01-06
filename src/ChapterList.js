@@ -4,12 +4,16 @@ import './ChapterList.css';
 class Chapter extends Component {
   constructor(props) {
     super(props);
+    this.id = this.props.chapter.id;
     this.toggleRead = this.toggleRead.bind(this);
+    this.download = this.download.bind(this);
+    this.downloadPoll = this.downloadPoll.bind(this);
+    this.downloadPollInterval = null;
   }
 
   toggleRead(e) {
     const chapter = this.props.chapter;
-    const url = `http://localhost:8999/chapters/${chapter.id}/read`
+    const url = `http://localhost:8999/chapters/${this.id}/read`;
     const button = e.target;
 
     fetch(url, {method: chapter.read ? 'DELETE' : 'POST'})
@@ -19,6 +23,49 @@ class Chapter extends Component {
           button.innerText = `Mark as ${chapter.read ? 'Un' : ''}read`;
         }
       })
+  }
+
+  download(e) {
+    const url = `http://localhost:8999/chapters/${this.id}/download`;
+    const button = e.target;
+
+    if (button.classList.contains('downloading')) { return; }
+
+    button.classList.add('downloading');
+
+    fetch(url, {method: 'POST'})
+      .then((res) => {
+        if (res.status !== 202 && res.status !== 409) {
+          throw new Error('Failed to download manga');
+        }
+        this.downloadPollInterval = window.setInterval(() => this.downloadPoll(button), 1000);
+      })
+      .catch((e) => {
+        console.error(e);
+        button.classList.remove('downloading');
+      });
+  }
+
+  downloadPoll(button) {
+    if (!this.downloadPollInterval) { return; }
+
+    fetch(`http://localhost:8999/manga/${this.id}/download`)
+      .then((res) => {
+        if (res.status === 409) { return; }
+
+        if (res.status !== 200) {
+          throw new Error('Failed to download manga');
+        }
+
+        button.classList.remove('downloading');
+        window.location.reload();
+      })
+      .catch((e) => {
+        console.error(e);
+        button.classList.remove('downloading');
+        window.clearInterval(this.downloadPollInterval);
+        this.downloadPollInterval = null;
+      });
   }
 
   render() {
@@ -31,7 +78,7 @@ class Chapter extends Component {
         <div className='Chapter-toggle-read button small' onClick={this.toggleRead} >
           Mark as {chapter.read ? 'Un' : ''}read
         </div>
-        <div className="Chapter-download button small">Download</div>
+        <div className="Chapter-download button small" onClick={this.download}>Download</div>
       </div>
     );
   }
