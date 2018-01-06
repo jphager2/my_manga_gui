@@ -10,6 +10,7 @@ class ShowPage extends Component {
     this.state = {
       manga: { uri: '#' },
       chapters: [],
+      downloads: {},
     };
   }
 
@@ -18,12 +19,13 @@ class ShowPage extends Component {
 
     this.fetchManga();
     this.fetchChapters();
+    this.fetchDownloads();
   }
 
   fetchManga() {
     fetch(`http://localhost:8999/manga/${this.id}`)
       .then((res) => {
-        if (!res.status === 200) {
+        if (res.status !== 200) {
           throw new Error(`Failed to fetch manga with id "${this.id}"`);
         }
 
@@ -36,7 +38,7 @@ class ShowPage extends Component {
   fetchChapters() {
     fetch(`http://localhost:8999/manga/${this.id}/chapters`)
       .then((res) => {
-        if (!res.status === 200) {
+        if (res.status !== 200) {
           throw new Error(`Failed to fetch chapters for manga with id "${this.id}"`);
         }
 
@@ -46,12 +48,26 @@ class ShowPage extends Component {
       .catch(e => console.error(e.message || e));
   }
 
+  fetchDownloads() {
+    fetch(`http://localhost:8999/manga/${this.id}/downloads`)
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error(`Failed to fetch downloads for manga with id "${this.id}"`);
+        }
+
+        return res.json();
+      })
+      .then(downloads => this.setState({downloads}))
+      .catch(e => console.error(e.message || e));
+  }
+
   render() {
     return (
       <MangaDetail
         id={this.id}
         manga={this.state.manga}
         chapters={this.state.chapters}
+        downloads={this.state.downloads}
       />
     );
   }

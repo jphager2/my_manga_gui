@@ -90,7 +90,7 @@ class MangaDetail extends Component {
           </div>
         </div>
         <div className="row">
-          <ChapterList chapters={this.props.chapters} />
+          <ChapterList chapters={this.props.chapters} downloads={this.props.downloads} />
         </div>
       </div>
     )

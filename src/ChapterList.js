@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { openItem } from './utils';
 import './ChapterList.css';
 
 class Chapter extends Component {
@@ -70,6 +71,17 @@ class Chapter extends Component {
 
   render() {
     const chapter = this.props.chapter;
+    let readOfflineButton;
+
+    if (this.props.downloaded) {
+      readOfflineButton = (
+        <a className="Chapter-read button small" href={this.props.downloaded} onClick={openItem}>Read Offline</a>
+      );
+    } else {
+      readOfflineButton = (
+        <div className="Chapter-download button small" onClick={this.download}>Download </div>
+      );
+    }
 
     return (
       <div className="Chapter">
@@ -78,7 +90,7 @@ class Chapter extends Component {
         <div className='Chapter-toggle-read button small' onClick={this.toggleRead} >
           Mark as {chapter.read ? 'Un' : ''}read
         </div>
-        <div className="Chapter-download button small" onClick={this.download}>Download</div>
+        {readOfflineButton}
       </div>
     );
   }
@@ -87,7 +99,7 @@ class Chapter extends Component {
 class ChapterList extends Component {
   render() {
     const chapters = this.props.chapters.map((chapter) => (
-      <Chapter key={chapter.id} chapter={chapter} />
+      <Chapter key={chapter.id} chapter={chapter} downloaded={this.props.downloads[chapter.id]} />
     ));
     return (
       <div className="ChapterList">

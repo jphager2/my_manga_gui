@@ -4,11 +4,13 @@ const express = require('express');
 const app = express();
 const db = require('./db');
 const fs = require('fs');
+const path = require('path');
 
 const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 
 const REACT_ORIGIN = `http://localhost:${port}`;
-const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga'
+const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga';
+const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || process.env.HOME;
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
@@ -93,6 +95,30 @@ app.get('/manga/:id/chapters', (req, res) => {
     .then((chapters) => {
       res.setHeader('Content-type', 'application/json');
       res.send(JSON.stringify(chapters));
+    })
+    .catch((e) => {
+      console.error(e);
+      res.status(500).end();
+    });
+});
+
+app.get('/manga/:id/downloads', (req, res) => {
+  db('chapters')
+    .select('manga.name AS manga', 'chapters.id', 'chapters.number')
+    .innerJoin('manga', 'chapters.manga_id', 'manga.id')
+    .where({manga_id: req.params.id})
+    .then((chapters) => {
+      const downloads = {};
+
+      chapters.forEach(({manga, number, id}) => {
+        const name = `${manga} ${number.toString().padStart(5, '0')}.cbz`;
+        const cbz = path.join(DOWNLOAD_DIR, manga, name);
+
+        if (fs.existsSync(cbz)) { downloads[id] = cbz; }
+      });
+
+      res.setHeader('Content-type', 'application/json');
+      res.send(JSON.stringify(downloads));
     })
     .catch((e) => {
       console.error(e);
