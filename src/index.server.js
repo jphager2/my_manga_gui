@@ -74,7 +74,11 @@ app.get('/search', (req, res) => {
   ensureSearchFile()
     .then((manga) => {
       manga = manga
-        .filter(({name}) => name.match(new RegExp(req.query.q, 'i')))
+        .filter(({name, site}) => {
+          if (req.query.site && site !== ':' + req.query.site) { return; }
+
+          return name.match(new RegExp(req.query.q, 'i'));
+        })
         .slice(0, 100)
         .sort((a, b) => {
           const nameA = a.name.toUpperCase()

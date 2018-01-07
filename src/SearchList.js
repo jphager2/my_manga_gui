@@ -1,26 +1,19 @@
 import React from 'react';
 import { openExternal } from './utils';
+import Image from './Image';
 import './SearchList.css';
 
 function Manga(props) {
   const url = props.href.replace(/\/+$/, '');
   const slug = url.split('/').reverse()[0];
-  let image;
-  let cover;
-
-  if (url.match(/mangareader\.net/)) {
-    image = url
+  const image = url
     .replace('www.mangareader.net', 's0.mangareader.net')
     .replace(slug, `cover/${slug}/${slug}-l0.jpg`);
-    cover = (
-      <img src={image} alt={props.name} />
-    );
-  }
 
   return (
     <div className="Manga">
       <div className="Manga-cover">
-        {cover}
+        <Image src={image} alt={props.name} />
       </div>
       <div className="Manga-info">
         <h2 className="Manga-title">{props.name}</h2>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import { openExternal } from './utils';
 import ChapterList from './ChapterList';
+import Image from './Image';
 import './MangaDetail.css';
 
 class MangaDetail extends Component {
@@ -62,6 +63,13 @@ class MangaDetail extends Component {
     const image = manga.uri
       .replace('www.mangareader.net', 's0.mangareader.net')
       .replace(slug, `cover/${slug}/${slug}-l0.jpg`);
+    let cover;
+
+    if (manga.uri !== '#') {
+      cover = (
+        <Image src={image} alt={manga.name} />
+      );
+    }
 
     return (
       <div className="MangaDetail">
@@ -69,11 +77,9 @@ class MangaDetail extends Component {
           <Link className="button small" to={'/'}>Back</Link>
         </div>
         <div className="row">
-          <Link to={`/manga/${manga.id}`}>
-            <div className="Manga-cover">
-              <img src={image} alt={manga.name} />
-            </div>
-          </Link>
+          <div className="Manga-cover">
+            {cover}
+          </div>
           <div className="MangaDetail-info">
             <h2 className="MangaDetail-title">{manga.name}</h2>
             <p className="MangaDetail-description">

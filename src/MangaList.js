@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
 import { openExternal } from './utils';
+import Image from './Image';
 import './MangaList.css';
 
 let updatePollInterval = null;
@@ -58,7 +59,7 @@ function Manga(props) {
     <div className="Manga">
       <Link to={`/manga/${props.id}`}>
         <div className="Manga-cover">
-          <img src={image} alt={props.name} />
+          <Image src={image} alt={props.name} />
         </div>
       </Link>
       <div className="Manga-info">

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'
 import Search from './Search';
 import SearchList from './SearchList';
 import { parseQuery } from './utils';
@@ -36,6 +37,9 @@ class SearchPage extends Component {
   render() {
     return (
       <div className="SearchPage">
+        <div className="row">
+          <Link className="button small" to={'/'}>Back</Link>
+        </div>
         <Search q={this.q} onSubmit={this.fetchResults} />
         <SearchList manga={this.state.manga} />
       </div>
