@@ -65,6 +65,8 @@ function Manga(props) {
       <div className="Manga-info">
         <h2 className="Manga-title">
           <Link to={`/manga/${props.id}`}>{props.name}</Link>
+          &nbsp;
+          <span className={`Manga-zine label small${props.zine ? '' : ' hidden'}`}>ZINE</span>
         </h2>
         <p className="Manga-description">
           {props.readCount} chapters read of {props.chapterCount}
@@ -89,6 +91,7 @@ function MangaList(props) {
       href={item.uri}
       chapterCount={item.total_count}
       readCount={item.read_count}
+      zine={props.zine.includes(item.id)}
     />
   ));
 

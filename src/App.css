@@ -51,6 +51,11 @@ html, body, #root {
   font-weight: bold;
 }
 
+.label.small {
+  padding: 0.25rem 1rem;
+  font-size: 0.7rem;
+}
+
 .button {
   display: inline-block;
   padding: 0.75rem 1.75rem;
@@ -74,4 +79,8 @@ html, body, #root {
 .row {
   display: flex;
   margin-bottom: 16px;
+}
+
+.hidden {
+  display: none;
 }

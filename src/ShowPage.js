@@ -11,6 +11,7 @@ class ShowPage extends Component {
       manga: { uri: '#' },
       chapters: [],
       downloads: {},
+      zine: false,
     };
   }
 
@@ -18,6 +19,7 @@ class ShowPage extends Component {
     if (!this.id) { return; }
 
     this.fetchManga();
+    this.fetchZine();
     this.fetchChapters();
     this.fetchDownloads();
   }
@@ -35,6 +37,18 @@ class ShowPage extends Component {
       .catch(e => console.error(e.message || e));
   }
 
+  fetchZine() {
+    fetch(`http://localhost:8999/zine/manga`)
+      .then((res) => {
+        if (!res.status === 200) {
+          throw new Error('Failed to fetch zine');
+        }
+
+        return res.json();
+      })
+      .then(zine => this.setState({zine: zine.includes(this.id)}))
+      .catch(e => console.error(e.message || e));
+  }
   fetchChapters() {
     fetch(`http://localhost:8999/manga/${this.id}/chapters`)
       .then((res) => {
@@ -68,6 +82,7 @@ class ShowPage extends Component {
         manga={this.state.manga}
         chapters={this.state.chapters}
         downloads={this.state.downloads}
+        zine={this.state.zine}
       />
     );
   }

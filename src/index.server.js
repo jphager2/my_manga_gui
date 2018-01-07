@@ -13,6 +13,7 @@ const REACT_ORIGIN = `http://localhost:${port}`;
 const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga';
 const MY_MANGA_SEARCH_FILE = process.env.MY_MANGA_SEARCH_FILE || path.join(process.env.HOME, '.manga_list.yml');
 const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || process.env.HOME;
+const MY_MANGA_ZINE_CONFIG = process.env.MY_MANGA_ZINE_CONFIG || path.join(DOWNLOAD_DIR, 'manga.yml');
 
 function rbToJs(json) {
   return Object.keys(json).reduce((obj, key) => {
@@ -52,7 +53,17 @@ function ensureSearchFile() {
   });
 }
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
+  try {
+    next();
+  } catch(error) {
+    res.status(500).end({error});
+  }
+});
+
+app.use((req, res, next) => {
+  res.setHeader('Content-type', 'application/json');
+
   // Website you wish to allow to connect
   res.setHeader('Access-Control-Allow-Origin', REACT_ORIGIN);
 
@@ -92,11 +103,30 @@ app.get('/search', (req, res) => {
     .catch(error => res.status(500).end(JSON.stringify({error: error.message || error})));
 });
 
+app.get('/zine/manga', (req, res) => {
+  yaml.read(MY_MANGA_ZINE_CONFIG, (err, zine) => {
+    let query = db('manga').select('*');
+
+    if (!err || typeof manga === 'array' && zine.length) {
+      query = query.whereIn('name', zine);
+    }
+
+    query
+      .then((manga) => {
+        res.send(JSON.stringify(manga.map(({id}) => id)));
+      })
+      .catch((e) => {
+        console.error(e);
+        res.status(500).end();
+      });
+  });
+});
+
 app.get('/manga', (req, res) => {
   db('manga')
     .select('*')
+    .orderBy('name', 'asc')
     .then((manga) => {
-      res.setHeader('Content-type', 'application/json');
       res.send(JSON.stringify(manga));
     })
     .catch((e) => {
@@ -140,7 +170,6 @@ app.get('/manga/:id', (req, res) => {
     .where({id: req.params.id})
     .limit(1)
     .then((manga) => {
-      res.setHeader('Content-type', 'application/json');
       res.send(JSON.stringify(manga[0]));
     })
     .catch((e) => {
@@ -155,7 +184,6 @@ app.get('/manga/:id/chapters', (req, res) => {
     .where({manga_id: req.params.id})
     .orderBy('number', 'desc')
     .then((chapters) => {
-      res.setHeader('Content-type', 'application/json');
       res.send(JSON.stringify(chapters));
     })
     .catch((e) => {
@@ -179,7 +207,6 @@ app.get('/manga/:id/downloads', (req, res) => {
         if (fs.existsSync(cbz)) { downloads[id] = cbz; }
       });
 
-      res.setHeader('Content-type', 'application/json');
       res.send(JSON.stringify(downloads));
     })
     .catch((e) => {

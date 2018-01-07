@@ -81,7 +81,11 @@ class MangaDetail extends Component {
             {cover}
           </div>
           <div className="MangaDetail-info">
-            <h2 className="MangaDetail-title">{manga.name}</h2>
+            <h2 className="MangaDetail-title">
+              {manga.name}
+              &nbsp;
+              <span className={`Manga-zine label small${this.props.zine ? '' : ' hidden'}`}>ZINE</span>
+            </h2>
             <p className="MangaDetail-description">
               {manga.read_count} chapters read of {manga.total_count}
             </p>

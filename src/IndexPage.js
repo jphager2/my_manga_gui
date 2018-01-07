@@ -7,11 +7,17 @@ class IndexPage extends Component {
     super(props);
 
     this.state = {
-      manga: []
+      manga: [],
+      zine: []
     };
   }
 
   componentDidMount() {
+    this.fetchManga();
+    this.fetchZine();
+  }
+
+  fetchManga() {
     fetch(`http://localhost:8999/manga`)
       .then((res) => {
         if (!res.status === 200) {
@@ -24,11 +30,24 @@ class IndexPage extends Component {
       .catch(e => console.error(e.message || e));
   }
 
+  fetchZine() {
+    fetch(`http://localhost:8999/zine/manga`)
+      .then((res) => {
+        if (!res.status === 200) {
+          throw new Error('Failed to fetch zine');
+        }
+
+        return res.json();
+      })
+      .then(zine => this.setState({zine}))
+      .catch(e => console.error(e.message || e));
+  }
+
   render() {
     return (
       <div className="IndexPage">
         <Search />
-        <MangaList manga={this.state.manga} />
+        <MangaList manga={this.state.manga} zine={this.state.zine} />
       </div>
     );
   }
