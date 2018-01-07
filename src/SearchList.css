@@ -1,0 +1,16 @@
+.Manga {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.Manga-cover {
+  width: 150px
+}
+
+.Manga-cover img {
+  max-width: 100%;
+}
+
+.Manga-info {
+  padding-left: 16px;
+}

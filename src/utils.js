@@ -1,7 +1,9 @@
 let shell;
+let qs;
 
 if (window.require) {
   const electron = window.require('electron');
+  qs = window.require('querystring');
   shell = electron.shell;
 }
 
@@ -21,4 +23,12 @@ function openItem(e) {
   shell.openItem(url);
 }
 
-export { openExternal, openItem };
+function parseQuery(str) {
+  if (!qs) { return {}; }
+
+  str = str.replace(/^\?/, '');
+
+  return qs.parse(str);
+}
+
+export { openExternal, openItem, parseQuery };

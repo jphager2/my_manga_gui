@@ -5,12 +5,52 @@ const app = express();
 const db = require('./db');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('node-yaml');
 
 const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 
 const REACT_ORIGIN = `http://localhost:${port}`;
 const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga';
+const MY_MANGA_SEARCH_FILE = process.env.MY_MANGA_SEARCH_FILE || path.join(process.env.HOME, '.manga_list.yml');
 const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || process.env.HOME;
+
+function rbToJs(json) {
+  return Object.keys(json).reduce((obj, key) => {
+    obj[key.replace(':', '')] = json[key];
+    return obj;
+  }, {});
+}
+
+function searchFile() {
+  return new Promise((resolve, reject) => {
+    yaml.read(MY_MANGA_SEARCH_FILE, (err, data) => {
+      if (err) { reject(err); }
+
+      resolve(data.map(manga => rbToJs(manga)));
+    });
+  });
+}
+
+function ensureSearchFile() {
+  return new Promise((resolve, reject) => {
+    searchFile()
+      .then(
+        resolve,
+        () => {
+          const cmd = spawn(MY_MANGA_PATH, ['find', 'Naruto']);
+
+          cmd.on('close', code => {
+            if (code !== 0) {
+              throw new Error('Failed to get search file');
+            }
+
+            searchFile.then(resolve, reject);
+          });
+        }
+      )
+      .catch(reject);
+  });
+}
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
@@ -28,6 +68,24 @@ app.use(function (req, res, next) {
 
   // Pass to next layer of middleware
   next();
+});
+
+app.get('/search', (req, res) => {
+  ensureSearchFile()
+    .then((manga) => {
+      manga = manga
+        .filter(({name}) => name.match(new RegExp(req.query.q, 'i')))
+        .slice(0, 100)
+        .sort((a, b) => {
+          const nameA = a.name.toUpperCase()
+          const nameB = b.name.toUpperCase();
+
+          return (nameA < nameB) ? -1 : (nameA > nameB) ? 1 : 0;
+        });
+
+      res.status(200).end(JSON.stringify(manga));
+    })
+    .catch(error => res.status(500).end(JSON.stringify({error: error.message || error})));
 });
 
 app.get('/manga', (req, res) => {

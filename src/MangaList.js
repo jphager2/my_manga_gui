@@ -75,7 +75,7 @@ function Manga(props) {
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function MangaList(props) {

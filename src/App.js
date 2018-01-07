@@ -6,6 +6,7 @@ import {
 import logo from './logo.svg';
 import IndexPage from './IndexPage';
 import ShowPage from './ShowPage';
+import SearchPage from './SearchPage';
 import './App.css';
 
 
@@ -22,6 +23,7 @@ class App extends Component {
             <div>
               <Route exact path="/" component={IndexPage} />
               <Route path="/manga/:id" component={ShowPage} />
+              <Route path="/search" component={SearchPage} />
             </div>
           </Router>
         </div>

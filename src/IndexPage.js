@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import MangaList from './MangaList';
+import Search from './Search';
 
 class IndexPage extends Component {
   constructor(props) {
@@ -25,7 +26,10 @@ class IndexPage extends Component {
 
   render() {
     return (
-      <MangaList manga={this.state.manga} />
+      <div className="IndexPage">
+        <Search />
+        <MangaList manga={this.state.manga} />
+      </div>
     );
   }
 }
