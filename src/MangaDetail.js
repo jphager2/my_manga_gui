@@ -90,7 +90,7 @@ class MangaDetail extends Component {
               {manga.read_count} chapters read of {manga.total_count}
             </p>
             <div>
-              <a className="MangaDetail-link button" href={manga.url} onClick={openExternal}>
+              <a className="MangaDetail-link button" href={manga.uri} onClick={openExternal}>
                 Read online
               </a>
               <div className="MangaDetail-update button" onClick={this.update} >

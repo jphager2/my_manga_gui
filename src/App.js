@@ -9,7 +9,6 @@ import ShowPage from './ShowPage';
 import SearchPage from './SearchPage';
 import './App.css';
 
-
 class App extends Component {
   render() {
     return (

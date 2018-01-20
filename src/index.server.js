@@ -2,10 +2,11 @@ const { spawn } = require('child_process');
 const shellescape = require('shell-escape');
 const express = require('express');
 const app = express();
-const db = require('./db');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('node-yaml');
+const db = require('./db');
+const logger = require('./logger')(0);
 
 const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 
@@ -39,7 +40,9 @@ function ensureSearchFile() {
         resolve,
         () => {
           const cmd = spawn(MY_MANGA_PATH, ['find', 'Naruto']);
+          let err = '';
 
+          cmd.stderr.on('data', data => err += data);
           cmd.on('close', code => {
             if (code !== 0) {
               throw new Error('Failed to get search file');
@@ -53,13 +56,31 @@ function ensureSearchFile() {
   });
 }
 
+function updateReadCount(id) {
+  return db('chapters')
+    .where({manga_id: id, read: true})
+    .count('id')
+    .then(([{count}]) => {
+      return db('manga').where({id}).update({read_count: count});
+    });
+}
+
+let uuid = 0;
+
 app.use((req, res, next) => {
+  req.uuid = uuid++;
+  logger.info(`[${req.uuid}] ${req.method} ${req.url}`);
+
   try {
     next();
   } catch(error) {
-    res.status(500).end({error});
+    logger.error(`Caught error: ${error.message || error}`);
+    res.status(500).end(JSON.stringify({error}));
   }
+
+  logger.info(`[${req.uuid}] ${res.statusCode}`);
 });
+
 
 app.use((req, res, next) => {
   res.setHeader('Content-type', 'application/json');
@@ -116,7 +137,7 @@ app.get('/zine/manga', (req, res) => {
         res.send(JSON.stringify(manga.map(({id}) => id)));
       })
       .catch((e) => {
-        console.error(e);
+        logger.error(e);
         res.status(500).end();
       });
   });
@@ -130,7 +151,7 @@ app.get('/manga', (req, res) => {
       res.send(JSON.stringify(manga));
     })
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.status(500).end();
     });
 });
@@ -150,13 +171,12 @@ app.post('/manga/update', (req, res) => {
     status = 202
     updatingManga = true;
     const cmd = spawn(MY_MANGA_PATH, ['update']);
-    const out = '';
-    const err = '';
 
-    cmd.stdout.on('data', data => out.concat(data));
-    cmd.stderr.on('data', data => err.concat(data));
+    let err = '';
+
+    cmd.stderr.on('data', data => err += data);
     cmd.on('close', code => {
-      if (code !== 0) { console.error(err); }
+      if (code !== 0) { logger.error(err); }
       updatingManga = false;
     });
   }
@@ -173,7 +193,7 @@ app.get('/manga/:id', (req, res) => {
       res.send(JSON.stringify(manga[0]));
     })
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.status(500).end();
     });
 });
@@ -187,7 +207,7 @@ app.get('/manga/:id/chapters', (req, res) => {
       res.send(JSON.stringify(chapters));
     })
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.status(500).end();
     });
 });
@@ -210,7 +230,7 @@ app.get('/manga/:id/downloads', (req, res) => {
       res.send(JSON.stringify(downloads));
     })
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.status(500).end();
     });
 });
@@ -237,18 +257,16 @@ app.post('/manga/:id/update', (req, res) => {
       .limit(1)
       .then(([manga]) => {
         const cmd = spawn(MY_MANGA_PATH, ['update', manga.name]);
-        const out = '';
-        const err = '';
+        let err = '';
 
-        cmd.stdout.on('data', data => out.concat(data));
-        cmd.stderr.on('data', data => err.concat(data));
+        cmd.stderr.on('data', data => err += data);
         cmd.on('close', code => {
-          if (code !== 0) { console.error(err); }
+          if (code !== 0) { logger.error(err); }
           delete updatingSingleManga[id];
         });
       })
       .catch((e) => {
-        console.error(e);
+        logger.error(e);
         delete updatingSingleManga[id];
       });
   }
@@ -277,18 +295,16 @@ app.post('/chapters/:id/download', (req, res) => {
       .where('chapters.id', id)
       .then(([{manga, number}]) => {
         const cmd = spawn(MY_MANGA_PATH, ['download', manga, `--list=${number}`]);
-        const out = '';
-        const err = '';
+        let err = '';
 
-        cmd.stdout.on('data', data => out.concat(data));
-        cmd.stderr.on('data', data => err.concat(data));
+        cmd.stderr.on('data', data => err += data);
         cmd.on('close', code => {
-          if (code !== 0) { console.error(err); }
+          if (code !== 0) { logger.error(err); }
           delete downloadingSingleChapter[id];
         });
       })
       .catch((e) => {
-        console.error(e);
+        logger.error(e);
         delete downloadingSingleChapter[id];
       });
   }
@@ -299,14 +315,17 @@ app.post('/chapters/:id/download', (req, res) => {
 app.post('/chapters/:id/read', (req, res) => {
   const id = req.params.id;
 
-  db('chapters')
-    .where({id})
+  db('chapters').where({id})
     .update({read: true})
     .then(() => {
-      res.status(200).end();
+      return db('chapters')
+        .where({id})
+        .select('manga_id')
+        .then(([{manga_id}]) => updateReadCount(manga_id));
     })
+    .then(() => res.status(200).end())
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.status(409).end();
     });
 });
@@ -317,15 +336,21 @@ app.delete('/chapters/:id/read', (req, res) => {
   db('chapters')
     .where({id})
     .update({read: false})
-    .then((results) => {
+    .then(() => {
+      return db('chapters')
+        .where({id})
+        .select('manga_id')
+        .then(([{manga_id}]) => updateReadCount(manga_id));
+    })
+    .then(() => {
       res.status(200).end();
     })
     .catch((e) => {
-      console.error(e)
+      logger.error(e);
       res.status(409).end();
     });
 });
 
 app.listen(8999);
 
-console.log('Server listening on 8999');
+logger.info('Server listening on 8999');

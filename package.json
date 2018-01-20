@@ -1,5 +1,5 @@
 {
-  "name": "my_manga",
+  "name": "my_manga_gui",
   "version": "0.1.0",
   "private": true,
   "main": "src/electron-starter.js",
@@ -37,6 +37,7 @@
       "src/electron-starter.js",
       "src/index.server.js",
       "src/db.js",
+      "src/logger.js",
       "build/**/*",
       "node_modules/**/*"
     ],

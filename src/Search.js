@@ -24,7 +24,7 @@ class Search extends Component {
 
     if (!q) { return; }
 
-    window.location.replace(`/#/search?q=${q}`);
+    window.location.hash = `/search?q=${q}`;
     if (this.onSubmit) { this.onSubmit(q); }
   }
 
