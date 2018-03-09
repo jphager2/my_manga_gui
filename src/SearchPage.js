@@ -22,7 +22,7 @@ class SearchPage extends Component {
   }
 
   fetchResults(q) {
-    fetch(`http://localhost:8999/search?q=${q || this.q}`)
+    fetch(`http://localhost:8999/search?q=${q || this.q}&site=mangareader`)
       .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch search results.');
