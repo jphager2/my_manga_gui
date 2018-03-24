@@ -1,42 +1,35 @@
 import React from 'react';
-import { openExternal } from './utils';
-import Image from './Image';
-import './SearchList.css';
-
-function Manga(props) {
-  const url = props.href.replace(/\/+$/, '');
-  const slug = url.split('/').reverse()[0];
-  const image = url
-    .replace('www.mangareader.net', 's1.mangareader.net')
-    .replace(slug, `cover/${slug}/${slug}-l0.jpg`);
-
-  return (
-    <div className="Manga">
-      <div className="Manga-cover">
-        <Image src={image} alt={props.name} />
-      </div>
-      <div className="Manga-info">
-        <h2 className="Manga-title">{props.name}</h2>
-        <p>
-          <a className="Manga-link button" href={props.href} onClick={openExternal}>
-            Read online
-          </a>
-        </p>
-      </div>
-    </div>
-  );
-}
+import ExternalManga from './ExternalManga';
+import LocalManga from './LocalManga';
 
 function SearchList(props) {
-  const { manga } = props;
+  const { results, manga, zine } = props;
 
-  const items = manga.map((item) => (
-    <Manga
-      key={item.uri}
-      name={item.name}
-      href={item.uri}
-    />
-  ));
+  const items = results.map((item) => {
+    const local = manga.find(({uri}) => uri === item.uri)
+
+    if (local) {
+      return (
+        <LocalManga
+          key={local.id.toString()}
+          id={local.id}
+          name={local.name}
+          href={local.uri}
+          chapterCount={local.total_count}
+          readCount={local.read_count}
+          zine={zine.includes(item.id)}
+        />
+      )
+    }
+
+    return (
+      <ExternalManga
+        key={item.uri}
+        name={item.name}
+        href={item.uri}
+      />
+    )
+  });
 
   return (
     <div className="SearchList">{items}</div>
