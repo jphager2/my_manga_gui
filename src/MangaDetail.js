@@ -61,7 +61,7 @@ class MangaDetail extends Component {
     const manga = this.props.manga;
     const slug = manga.uri.split('/').reverse()[0];
     const image = manga.uri
-      .replace('www.mangareader.net', 's0.mangareader.net')
+      .replace('www.mangareader.net', 's1.mangareader.net')
       .replace(slug, `cover/${slug}/${slug}-l0.jpg`);
     let cover;
 

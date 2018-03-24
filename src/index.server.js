@@ -13,7 +13,7 @@ const port = process.env.PORT ? (parseInt(process.env.PORT) - 100) : 3000;
 const REACT_ORIGIN = `http://localhost:${port}`;
 const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga';
 const MY_MANGA_SEARCH_FILE = process.env.MY_MANGA_SEARCH_FILE || path.join(process.env.HOME, '.manga_list.yml');
-const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || process.env.HOME;
+const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || path.join(process.env.HOME, 'manga');
 const MY_MANGA_ZINE_CONFIG = process.env.MY_MANGA_ZINE_CONFIG || path.join(DOWNLOAD_DIR, 'manga.yml');
 
 function rbToJs(json) {
