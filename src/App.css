@@ -84,3 +84,25 @@ html, body, #root {
 .hidden {
   display: none;
 }
+
+.MangaList-list, .SearchList {
+  max-width: 100%;
+  display: grid;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+}
+
+@media (min-width: 1500px) {
+  .MangaList-list, .SearchList {
+    grid-template-columns: auto auto auto auto;
+  }
+}
+
+@media (max-width: 1499px) and (min-width: 1000px) {
+  .MangaList-list, .SearchList {
+    grid-template-columns: auto auto;
+  }
+}
+
+.MangaList-list .LocalManga, .SearchList .LocalManga, .SearchList .ExtrernalManga {
+}
