@@ -103,6 +103,3 @@ html, body, #root {
     grid-template-columns: auto auto;
   }
 }
-
-.MangaList-list .LocalManga, .SearchList .LocalManga, .SearchList .ExtrernalManga {
-}
