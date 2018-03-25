@@ -17,6 +17,9 @@
 .env.test.local
 .env.production.local
 
+# TODO: Meh probably just use .env
+onedrive.config.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

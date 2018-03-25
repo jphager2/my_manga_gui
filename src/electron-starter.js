@@ -1,13 +1,11 @@
 require('./index.server');
 
-const electron = require('electron');
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
+const {app, ipcMain, BrowserWindow} = require('electron');
 
 const path = require('path');
 const url = require('url');
+
+const authenticateOnedrive = require('./onedrive');
 
 const startUrl = process.env.ELECTRON_START_URL || url.format({
   pathname: path.join(__dirname, '/../build/index.html'),
@@ -60,5 +58,6 @@ app.on('activate', function () {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.on('onedrive-oauth', (event, arg) => {
+  authenticateOnedrive().then(event.sender.send('onedrive-oauth-reply'));
+});
