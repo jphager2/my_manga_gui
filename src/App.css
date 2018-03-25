@@ -64,6 +64,8 @@ html, body, #root {
   font-size: 1.25rem;
   text-decoration: none;
   cursor: pointer;
+  background-color: transparent;
+  color: white;
 }
 
 .button.small {

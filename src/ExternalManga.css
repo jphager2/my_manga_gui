@@ -14,3 +14,7 @@
 .ExternalManga-info {
   padding-left: 16px;
 }
+
+.ExternalManga .button {
+  margin: 0 8px 8px 0;
+}

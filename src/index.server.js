@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 const shellescape = require('shell-escape');
 const express = require('express');
-const app = express();
+const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('node-yaml');
@@ -15,6 +15,8 @@ const MY_MANGA_PATH = process.env.MY_MANGA_PATH || 'my_manga';
 const MY_MANGA_SEARCH_FILE = process.env.MY_MANGA_SEARCH_FILE || path.join(process.env.HOME, '.manga_list.yml');
 const DOWNLOAD_DIR = process.env.MY_MANGA_DOWNLOAD_DIR || path.join(process.env.HOME, 'manga');
 const MY_MANGA_ZINE_CONFIG = process.env.MY_MANGA_ZINE_CONFIG || path.join(DOWNLOAD_DIR, 'manga.yml');
+
+const app = express();
 
 function rbToJs(json) {
   return Object.keys(json).reduce((obj, key) => {
@@ -67,6 +69,8 @@ function updateReadCount(id) {
 
 let uuid = 0;
 
+app.use(bodyParser.json());
+
 app.use((req, res, next) => {
   req.uuid = uuid++;
   logger.info(`[${req.uuid}] ${req.method} ${req.url}`);
@@ -80,7 +84,6 @@ app.use((req, res, next) => {
 
   logger.info(`[${req.uuid}] ${res.statusCode}`);
 });
-
 
 app.use((req, res, next) => {
   res.setHeader('Content-type', 'application/json');
@@ -156,6 +159,35 @@ app.get('/manga', (req, res) => {
     });
 });
 
+let addingSingleManga = {};
+
+app.get('/manga', (req, res) => {
+  res.status(addingSingleManga[req.params.uri] ? 409 : 200).end();
+});
+
+app.post('/manga', (req, res) => {
+  let status;
+  let { uri } = req.body;
+
+  if (addingSingleManga[uri]) {
+    status = 409
+  } else {
+    status = 202
+    addingSingleManga[uri] = true;
+    const cmd = spawn(MY_MANGA_PATH, ['add', uri]);
+
+    let err = '';
+
+    cmd.stderr.on('data', data => err += data);
+    cmd.on('close', code => {
+      if (code !== 0) { logger.error(err); }
+      addingSingleManga[uri] = false;
+    });
+  }
+
+  res.status(status).end();
+});
+
 let updatingManga = false;
 
 app.get('/manga/update', (req, res) => {
@@ -196,6 +228,45 @@ app.get('/manga/:id', (req, res) => {
       logger.error(e);
       res.status(500).end();
     });
+});
+
+let deletingSingleManga = {};
+
+app.get('/manga/:id/delete', (req, res) => {
+  res.status(deletingSingleManga[req.params.id] ? 409 : 200).end();
+});
+
+app.post('/manga/:id/delete', (req, res) => {
+  let status;
+  const id = req.params.id;
+
+  if (deletingSingleManga[id]) {
+    status = 409
+  } else {
+    status = 202;
+    deletingSingleManga[id] = true;
+    
+    db('manga')
+      .select('name')
+      .where({id})
+      .limit(1)
+      .then(([manga]) => {
+        const cmd = spawn(MY_MANGA_PATH, ['remove', manga.name]);
+        let err = '';
+
+        cmd.stderr.on('data', data => err += data);
+        cmd.on('close', code => {
+          if (code !== 0) { logger.error(err); }
+          delete deletingSingleManga[id];
+        });
+      })
+      .catch((e) => {
+        logger.error(e);
+        delete deletingSingleManga[id];
+      });
+  }
+
+  res.status(status).end();
 });
 
 app.get('/manga/:id/chapters', (req, res) => {
@@ -276,7 +347,7 @@ app.post('/manga/:id/update', (req, res) => {
 
 const downloadingSingleChapter = {};
 
-app.get('/manga/:id/download', (req, res) => {
+app.get('/chapters/:id/download', (req, res) => {
   res.status(downloadingSingleChapter[req.params.id] ? 409 : 200).end(JSON.stringify(downloadingSingleChapter));
 });
 

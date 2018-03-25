@@ -11,45 +11,70 @@ class MangaDetail extends Component {
 
     this.id = props.id;
     this.update = this.update.bind(this);
-    this.updatePoll = this.updatePoll.bind(this);
-    this.updatePollInterval = null;
+    this.remove = this.remove.bind(this);
+    this.performAction = this.performAction.bind(this);
+    this.poll = this.poll.bind(this);
+    this.pollInterval = {};
   }
 
-  updatePoll(button) {
-    if (!this.updatePollInterval) { return; }
+  poll(button, action, url, redirectTo) {
+    if (!this.pollInterval[action]) { return; }
 
-    fetch(`http://localhost:8999/manga/${this.id}/update`)
+    fetch(url)
       .then((res) => {
         if (res.status === 409) { return; }
 
         if (res.status !== 200) {
-          throw new Error('Failed to update manga');
+          throw new Error(`Failed to ${action} manga`);
         }
 
         button.classList.remove('loading');
-        window.location.reload();
+        window.clearInterval(this.pollInterval[action]);
+        this.pollInterval[action] = null;
+
+        if (redirectTo) {
+          window.location.hash = redirectTo;
+        } else {
+          window.location.reload();
+        }
       })
       .catch((e) => {
         console.error(e);
         button.classList.remove('loading');
-        window.clearInterval(this.updatePollInterval);
-        this.updatePollInterval = null;
+        window.clearInterval(this.pollInterval[action]);
+        this.pollInterval[action] = null;
       });
   }
 
   update(e) {
+    const url = `http://localhost:8999/manga/${this.id}/update`;
+
+    this.performAction(e, url, 'update');
+  }
+
+  remove(e) {
+    const url = `http://localhost:8999/manga/${this.id}/delete`;
+
+    if (window.confirm('Remove this manga?')) {
+      this.performAction(e, url, 'update', '/');
+    }
+  }
+
+  performAction(e, url, action, redirectTo) {
     const button = e.target;
 
     if (button.classList.contains('loading')) { return; }
 
     button.classList.add('loading');
 
-    fetch(`http://localhost:8999/manga/${this.id}/update`, {method: 'POST'})
+    fetch(url, {method: 'POST'})
       .then((res) => {
         if (res.status !== 202 && res.status !== 409) {
-          throw new Error('Failed to update manga');
+          throw new Error(`Failed to ${action} manga`);
         }
-        this.updatePollInterval = window.setInterval(() => this.updatePoll(button), 1000);
+        this.pollInterval[action] = window.setInterval(() => {
+          this.poll(button, action, url, redirectTo)
+        }, 1000);
       })
       .catch((e) => {
         console.error(e);
@@ -93,9 +118,12 @@ class MangaDetail extends Component {
               <a className="MangaDetail-link button" href={manga.uri} onClick={openExternal}>
                 Read online
               </a>
-              <div className="MangaDetail-update button" onClick={this.update} >
+              <button className="MangaDetail-update button" onClick={this.update} >
                 Update
-              </div>
+              </button>
+              <button className="MangaDetail-remove button" onClick={this.remove} >
+                Remove
+              </button>
             </div>
           </div>
         </div>

@@ -50,7 +50,7 @@ class Chapter extends Component {
   downloadPoll(button) {
     if (!this.downloadPollInterval) { return; }
 
-    fetch(`http://localhost:8999/manga/${this.id}/download`)
+    fetch(`http://localhost:8999/chapters/${this.id}/download`)
       .then((res) => {
         if (res.status === 409) { return; }
 
