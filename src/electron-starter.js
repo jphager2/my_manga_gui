@@ -1,3 +1,5 @@
+const logger = require('./logger')(0);
+
 require('./index.server');
 
 const {app, ipcMain, BrowserWindow} = require('electron');
@@ -5,7 +7,7 @@ const {app, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
-const authenticateOnedrive = require('./odoauth');
+const authenticateOnedrive = require('./odauth');
 
 const startUrl = process.env.ELECTRON_START_URL || url.format({
   pathname: path.join(__dirname, '/../build/index.html'),
@@ -59,5 +61,9 @@ app.on('activate', function () {
 });
 
 ipcMain.on('onedrive-oauth', (event, arg) => {
-  authenticateOnedrive().then(event.sender.send('onedrive-oauth-reply'));
+  authenticateOnedrive().then(json => {
+    event.sender.send('onedrive-oauth-reply', json);
+  });
 });
+
+logger.info('Electron fully loaded');

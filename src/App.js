@@ -7,6 +7,7 @@ import logo from './logo.svg';
 import IndexPage from './IndexPage';
 import ShowPage from './ShowPage';
 import SearchPage from './SearchPage';
+import OnedriveOauth from './OnedriveOauth';
 import './App.css';
 
 class App extends Component {
@@ -16,6 +17,7 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to MyManga</h1>
+          <OnedriveOauth />
         </header>
         <div className="App-route">
           <Router>

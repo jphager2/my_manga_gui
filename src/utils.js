@@ -1,10 +1,16 @@
 let shell;
 let qs;
+let electron;
+let ipcRenderer = {
+  on() {},
+  send() {}
+};
 
 if (window.require) {
-  const electron = window.require('electron');
+  electron = window.require('electron');
   qs = window.require('querystring');
   shell = electron.shell;
+  ipcRenderer = electron.ipcRenderer;
 }
 
 function openExternal(e) {
@@ -31,4 +37,4 @@ function parseQuery(str) {
   return qs.parse(str);
 }
 
-export { openExternal, openItem, parseQuery };
+export { openExternal, openItem, parseQuery, ipcRenderer };

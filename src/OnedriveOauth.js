@@ -1,20 +1,22 @@
 import React from 'react';
-import {ipcRenderer} from 'electron';
 import onedrive from './odapi';
+import {ipcRenderer} from './utils';
 
-ipcRenderer.on('onedrive-oauth-reply', function() {
+ipcRenderer.on('onedrive-oauth-reply', function(json) {
+  console.log(`json: ${JSON.stringify(json)}`);
+  onedrive.handleAuthData(json);
   window.location.hash = '/';
 });
 
 function authenticate() {
-  ipcRenderer.send('onedrive-oatuh');
+  ipcRenderer.send('onedrive-oauth');
 }
 
 function OnedriveOauth(props) {
   if (onedrive.isAuthenticated()) { return; }
 
   return (
-    <button class="OnedriveOauth" onClick={authenticate}>Sign in</button>
+    <button className="OnedriveOauth button" onClick={authenticate}>Sign in</button>
   );
 }
 

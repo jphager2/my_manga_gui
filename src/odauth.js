@@ -3,15 +3,12 @@
 
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
+const fetch = require('node-fetch');
 const logger = require('./logger')(0);
 const config = require('../onedrive.config.json');
+let authWindow;
 
-const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${config.clientId}&scope=${encodeURIComponent(config.scope)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code`;
-
-authWindow.loadUrl(authUrl);
-authWindow.show();
-
-function handleCallback(url) {
+function handleCallback(url, resolve) {
   const raw_code = /code=([^&]*)/.exec(url) || null;
   const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
   const error = /\?error=(.+)$/.exec(url);
@@ -21,7 +18,7 @@ function handleCallback(url) {
   }
 
   if (code) {
-    requestToken(code);
+    requestToken(code).then(resolve);
   } else if (error) {
     logger.error('Could not get code from onedrive.');
   }
@@ -46,31 +43,38 @@ function requestToken(code) {
       return res.json();
     })
     .then(json => {
-      logger.debug(json);
-      window.localStorage.setItem('onedrivetoken', json.access_token);
+      logger.debug(JSON.stringify(json));
+      return json;
     })
     .catch(e => logger.error(e.message || e));
 }
 
 function authenticate() {
-  const authWindow = new BrowserWindow({
-    width: 880,
-    height: 600,
-    show: false,
-    'node-integration': false
-  });
+  return new Promise((resolve, reject) => {
+    authWindow = new BrowserWindow({
+      width: 880,
+      height: 600,
+      show: false,
+      'node-integration': false
+    });
 
-  authWindow.webContents.on('will-navigate', function(event, url) {
-    handleCallback(url);
-  });
+    const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${config.clientId}&scope=${encodeURIComponent(config.scope)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code`;
 
-  authWindow.webContents.on('did-get-redirect-request', function(event, oldUrl, newUrl) {
-    handleCallback(newUrl);
-  });
+    authWindow.loadURL(authUrl);
+    authWindow.show();
 
-  authWindow.on('close', function() {
-    authWindow = null;
-  }, false);
+    authWindow.webContents.on('will-navigate', function(event, url) {
+      handleCallback(url, resolve);
+    });
+
+    authWindow.webContents.on('did-get-redirect-request', function(event, oldUrl, newUrl) {
+      handleCallback(newUrl, resolve);
+    });
+
+    authWindow.on('close', function() {
+      authWindow = null;
+    }, false);
+  });
 }
 
 module.exports = authenticate;
