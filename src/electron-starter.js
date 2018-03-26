@@ -5,7 +5,7 @@ const {app, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
-const authenticateOnedrive = require('./onedrive');
+const authenticateOnedrive = require('./odoauth');
 
 const startUrl = process.env.ELECTRON_START_URL || url.format({
   pathname: path.join(__dirname, '/../build/index.html'),
