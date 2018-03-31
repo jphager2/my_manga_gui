@@ -8,7 +8,7 @@ const logger = require('./logger')(0);
 const config = require('../onedrive.config.json');
 let authWindow;
 
-function handleCallback(url, resolve) {
+function handleAuthenticationCallback(url, resolve) {
   const raw_code = /code=([^&]*)/.exec(url) || null;
   const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
   const error = /\?error=(.+)$/.exec(url);
@@ -64,11 +64,11 @@ function authenticate() {
     authWindow.show();
 
     authWindow.webContents.on('will-navigate', function(event, url) {
-      handleCallback(url, resolve);
+      handleAuthenticationCallback(url, resolve);
     });
 
     authWindow.webContents.on('did-get-redirect-request', function(event, oldUrl, newUrl) {
-      handleCallback(newUrl, resolve);
+      handleAuthenticationCallback(newUrl, resolve);
     });
 
     authWindow.on('close', function() {
@@ -77,4 +77,28 @@ function authenticate() {
   });
 }
 
-module.exports = authenticate;
+function refresh(refreshToken) {
+  const tokenUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/token`;
+  const body = `client_id=${config.clientId}&client_secret=${encodeURIComponent(config.clientSecret)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&refresh_token=${encodeURIComponent(refreshToken)}&grant_type=refresh_token`;
+  const headers = {
+    'content-type': 'application/x-www-form-urlencoded',
+    'accepts': 'application/json'
+  };
+
+  return fetch(tokenUrl, {method: 'POST', headers, body})
+    .then(res => {
+      logger.debug(`res.status: ${res.status}`);
+
+      if (res.status !== 200) {
+        throw new Error('Failed to get token.');
+      }
+
+      return res.json();
+    })
+    .then(json => {
+      return json;
+    })
+    .catch(e => logger.error(e.message || e));
+}
+
+module.exports = { authenticate, refresh };

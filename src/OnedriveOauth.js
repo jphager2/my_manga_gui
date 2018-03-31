@@ -6,7 +6,11 @@ import icon from './onedrive.png';
 
 ipcRenderer.on('onedrive-oauth-reply', function(event, json) {
   onedrive.handleAuthData(json);
-  window.location.hash = '/';
+  window.setTimeout(() => { window.location.hash = '/'; }, 1000);
+});
+
+ipcRenderer.on('onedrive-oauth-refresh-reply', function(event, json) {
+  onedrive.handleAuthData(json);
 });
 
 function authenticate(event) {

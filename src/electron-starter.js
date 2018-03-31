@@ -7,7 +7,7 @@ const {app, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
-const authenticateOnedrive = require('./odauth');
+const onedrive = require('./odauth');
 
 const startUrl = process.env.ELECTRON_START_URL || url.format({
   pathname: path.join(__dirname, '/../build/index.html'),
@@ -60,9 +60,15 @@ app.on('activate', function () {
   }
 });
 
-ipcMain.on('onedrive-oauth', (event, arg) => {
-  authenticateOnedrive().then(json => {
+ipcMain.on('onedrive-oauth', (event) => {
+  onedrive.authenticate().then(json => {
     event.sender.send('onedrive-oauth-reply', json);
+  });
+});
+
+ipcMain.on('onedrive-oauth-refresh', (event, refreshToken) => {
+  onedrive.refresh(refreshToken).then(json => {
+    event.sender.send('onedrive-oauth-refresh-reply', json);
   });
 });
 
