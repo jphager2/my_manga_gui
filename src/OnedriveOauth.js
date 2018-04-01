@@ -6,11 +6,20 @@ import icon from './onedrive.png';
 
 ipcRenderer.on('onedrive-oauth-reply', function(event, json) {
   onedrive.handleAuthData(json);
-  window.setTimeout(() => { window.location.hash = '/'; }, 1000);
+  window.location.hash = '/';
+  window.location.reload();
 });
 
 ipcRenderer.on('onedrive-oauth-refresh-reply', function(event, json) {
   onedrive.handleAuthData(json);
+});
+
+ipcRenderer.on('onedrive-upload-success', function(event, json) {
+  console.log('successfully uploaded');
+});
+
+ipcRenderer.on('onedrive-upload-failed', function(event, json) {
+  console.log('failed to upload');
 });
 
 function authenticate(event) {

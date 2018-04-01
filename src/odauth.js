@@ -1,8 +1,7 @@
 // TODO: Think about using https://github.com/mawie81/electron-oauth2
 // Code based on https://www.manos.im/blog/electron-oauth-with-github/
 
-const electron = require('electron');
-const BrowserWindow = electron.BrowserWindow;
+const {ipcMain, BrowserWindow} = require('electron');
 const fetch = require('node-fetch');
 const logger = require('./logger')(0);
 const config = require('../onedrive.config.json');
@@ -101,4 +100,14 @@ function refresh(refreshToken) {
     .catch(e => logger.error(e.message || e));
 }
 
-module.exports = { authenticate, refresh };
+ipcMain.on('onedrive-oauth', (event) => {
+  authenticate().then(json => {
+    event.sender.send('onedrive-oauth-reply', json);
+  });
+});
+
+ipcMain.on('onedrive-oauth-refresh', (event, refreshToken) => {
+  refresh(refreshToken).then(json => {
+    event.sender.send('onedrive-oauth-refresh-reply', json);
+  });
+});

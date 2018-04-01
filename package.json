@@ -1,6 +1,6 @@
 {
   "name": "my_manga_gui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "src/electron-starter.js",
   "homepage": "./",
@@ -34,12 +34,15 @@
     "dist": "npm run build && electron-builder"
   },
   "build": {
+    "extends": null,
     "appId": "info.john-hager.my_manga_gui",
     "files": [
       "src/electron-starter.js",
       "src/index.server.js",
       "src/db.js",
       "src/logger.js",
+      "src/odbackend.js",
+      "src/odauth.js",
       "build/**/*",
       "node_modules/**/*"
     ],

@@ -7,6 +7,12 @@ function clearAuthData() {
 }
 
 export default {
+  logout() {
+    clearAuthData();
+    window.location.hash = '/';
+    window.location.reload();
+  },
+
   isAuthenticated() {
     const token = window.localStorage.getItem('onedrive.token');
     const expiresAt = window.localStorage.getItem('onedrive.expiresAt');
@@ -36,5 +42,11 @@ export default {
     window.localStorage.setItem('onedrive.token', json.access_token);
     window.localStorage.setItem('onedrive.expiresAt', expiresAt);
     window.localStorage.setItem('onedrive.refreshToken', json.refresh_token);
+  },
+
+  uploadFile(filename) {
+    const token = window.localStorage.getItem('onedrive.token');
+
+    ipcRenderer.send('onedrive-upload', token, filename);
   }
 };
