@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 const {ipcMain} = require('electron');
 
 const logger = require('./logger')(0);
-const config = require('../onedrive.config.json');
+const config = require('./onedrive.config.json');
 
 function resUpload(token, filepath){
   const filename = path.basename(filepath)

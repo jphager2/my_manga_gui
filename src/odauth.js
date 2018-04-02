@@ -4,7 +4,7 @@
 const {ipcMain, BrowserWindow} = require('electron');
 const fetch = require('node-fetch');
 const logger = require('./logger')(0);
-const config = require('../onedrive.config.json');
+const config = require('./onedrive.config.json');
 let authWindow;
 
 function handleAuthenticationCallback(url, resolve) {

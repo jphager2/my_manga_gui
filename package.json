@@ -43,6 +43,7 @@
       "src/logger.js",
       "src/odbackend.js",
       "src/odauth.js",
+      "src/onedrive.config.json",
       "build/**/*",
       "node_modules/**/*"
     ],

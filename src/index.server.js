@@ -41,7 +41,7 @@ function ensureSearchFile() {
       .then(
         resolve,
         () => {
-          const cmd = spawn(MY_MANGA_PATH, ['find', 'Naruto']);
+          const cmd = spawn(MY_MANGA_PATH, ['find', 'Naruto'], {shell: true});
           let err = '';
 
           cmd.stderr.on('data', data => err += data);
@@ -174,7 +174,7 @@ app.post('/manga', (req, res) => {
   } else {
     status = 202
     addingSingleManga[uri] = true;
-    const cmd = spawn(MY_MANGA_PATH, ['add', uri]);
+    const cmd = spawn(MY_MANGA_PATH, ['add', uri], {shell: true});
 
     let err = '';
 
@@ -202,7 +202,7 @@ app.post('/manga/update', (req, res) => {
   } else {
     status = 202
     updatingManga = true;
-    const cmd = spawn(MY_MANGA_PATH, ['update']);
+    const cmd = spawn(MY_MANGA_PATH, ['update'], {shell: true});
 
     let err = '';
 
@@ -251,7 +251,7 @@ app.post('/manga/:id/delete', (req, res) => {
       .where({id})
       .limit(1)
       .then(([manga]) => {
-        const cmd = spawn(MY_MANGA_PATH, ['remove', manga.name]);
+        const cmd = spawn(MY_MANGA_PATH, ['remove', manga.name], {shell: true});
         let err = '';
 
         cmd.stderr.on('data', data => err += data);
@@ -327,7 +327,7 @@ app.post('/manga/:id/update', (req, res) => {
       .where({id})
       .limit(1)
       .then(([manga]) => {
-        const cmd = spawn(MY_MANGA_PATH, ['update', manga.name]);
+        const cmd = spawn(MY_MANGA_PATH, ['update', manga.name], {shell: true});
         let err = '';
 
         cmd.stderr.on('data', data => err += data);
@@ -365,7 +365,7 @@ app.post('/chapters/:id/download', (req, res) => {
       .select('manga.name AS manga', 'chapters.number')
       .where('chapters.id', id)
       .then(([{manga, number}]) => {
-        const cmd = spawn(MY_MANGA_PATH, ['download', manga, `--list=${number}`]);
+        const cmd = spawn(MY_MANGA_PATH, ['download', manga, `--list=${number}`], {shell: true});
         let err = '';
 
         cmd.stderr.on('data', data => err += data);
