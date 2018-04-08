@@ -1,5 +1,4 @@
 const { spawn } = require('child_process');
-const shellescape = require('shell-escape');
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
