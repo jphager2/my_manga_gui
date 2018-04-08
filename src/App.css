@@ -18,9 +18,11 @@ html, body, #root {
 }
 
 .App-header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: #222;
-  height: 150px;
+  height: 60px;
   padding: 20px;
   color: white;
 }

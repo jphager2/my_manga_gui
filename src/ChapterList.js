@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import { openItem } from './utils';
+import onedrive from './odapi';
 import './ChapterList.css';
+
+function uploadItem(e) {
+  const button = e.target;
+  e.preventDefault();
+
+  if (button.classList.contains('loading')) { return; }
+
+  button.classList.add('loading');
+  onedrive.uploadFile(button.getAttribute('href'));
+}
 
 class Chapter extends Component {
   constructor(props) {
@@ -75,7 +86,10 @@ class Chapter extends Component {
 
     if (this.props.downloaded) {
       readOfflineButton = (
-        <a className="Chapter-read button small" href={this.props.downloaded} onClick={openItem}>Read Offline</a>
+        <div>
+          <a className="Chapter-read button small" href={this.props.downloaded} onClick={openItem}>Read Offline</a>
+          <a className="Chapter-upload button small" href={this.props.downloaded} onClick={uploadItem}>Upload</a>
+        </div>
       );
     } else {
       readOfflineButton = (

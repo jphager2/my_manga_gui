@@ -1,6 +1,6 @@
 {
   "name": "my_manga_gui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "src/electron-starter.js",
   "homepage": "./",
@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "knex": "^0.14.2",
+    "express": "^4.16.3",
+    "knex": "^0.14.4",
+    "node-fetch": "^2.1.2",
     "node-yaml": "^3.1.1",
-    "pg": "^7.4.0",
+    "pg": "^7.4.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
@@ -33,12 +34,16 @@
     "dist": "npm run build && electron-builder"
   },
   "build": {
+    "extends": null,
     "appId": "info.john-hager.my_manga_gui",
     "files": [
       "src/electron-starter.js",
       "src/index.server.js",
       "src/db.js",
       "src/logger.js",
+      "src/odbackend.js",
+      "src/odauth.js",
+      "src/onedrive.config.json",
       "build/**/*",
       "node_modules/**/*"
     ],
@@ -51,8 +56,8 @@
     }
   },
   "devDependencies": {
-    "electron": "^1.7.10",
-    "electron-builder": "^19.49.4",
+    "electron": "^1.7.12",
+    "electron-builder": "^19.56.2",
     "foreman": "^2.0.0"
   }
 }

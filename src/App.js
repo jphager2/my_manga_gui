@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import {
   HashRouter as Router,
   Route
-} from 'react-router-dom'
-import logo from './logo.svg';
+} from 'react-router-dom';
 import IndexPage from './IndexPage';
 import ShowPage from './ShowPage';
 import SearchPage from './SearchPage';
+import OnedriveOauth from './OnedriveOauth';
 import './App.css';
 
 class App extends Component {
@@ -14,8 +14,8 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to MyManga</h1>
+          <OnedriveOauth />
         </header>
         <div className="App-route">
           <Router>
